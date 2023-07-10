@@ -17,13 +17,11 @@
       <h3 class="box-title">Input Kendaraan Masuk</h3>
     </div>
 
-    <form action="<?php echo site_url('parkiran/simpan'); ?>" method="post">
+    <form action="" method="post">
       <div class="box-body">
-        <?php echo validation_errors('<div style="color: red;">', '</div>'); ?>
-
         <div class="form-group">
-          <label for="plat_nomer">Nomor Plat:</label>
-          <input class="form-control" type="text" name="plat_nomer" value="<?php echo set_value('plat_nomer'); ?>" required>
+          <label for="nama_kategori">Nomor Plat:</label>
+          <input class="form-control" type="text" name="plat_nomor" value="" required>
         </div>
 
         <div class="form-group">
@@ -35,7 +33,6 @@
             <?php } ?>
           </select>
         </div>
-
         <input type="submit" value="Simpan" class="btn btn-primary">
       </div>
     </form>
@@ -45,16 +42,16 @@
     <div class="box-body table-responsive no-padding">
       <table class="table table-hover">
         <tr>
-          <th>Kode Kendaraan</th>
-          <th>Plat Nomer</th>
-          <th>tanggal masuk</th>
-          <th>harga</th>
+          <th>Kode Parkir</th>
+          <th>Nomer Kendaraan</th>
+          <th>Jenis Kendaraan</th>
+          <th>Waktu Masuk</th>
         </tr>
         <?php foreach ($data_parkir as $row) { ?>
           <tr>
-            <td><?php echo $row->nama_kategori; ?></td>
-            <td><?php echo $row->plat_nomer; ?></td>
-            <td><?php echo date('d-m-Y H:i', strtotime($row->tanggal_masuk)); ?></td>
+            <td><?php echo $row->kode_kendaraan; ?></td>
+            <td><?php echo $row->plat_nomor; ?></td>
+            <td><?php echo $row->tanggal_masuk; ?></td>
             <td><?php echo $row->harga; ?></td>
           </tr>
         <?php } ?>
