@@ -21,6 +21,11 @@
       <div class="box-body">
         <?php echo validation_errors('<div style="color: red;">', '</div>'); ?>
 
+
+        <?php if (isset($error_message)) { ?>
+          <div style="color: red;"><?php echo $error_message; ?></div>
+        <?php } ?>
+
         <div class="form-group">
           <label for="plat_nomer">Nomor Plat:</label>
           <input class="form-control" type="text" name="plat_nomer" value="<?php echo set_value('plat_nomer'); ?>" required>
@@ -49,6 +54,7 @@
           <th>Plat Nomer</th>
           <th>tanggal masuk</th>
           <th>harga</th>
+          <th>Cetak</th>
         </tr>
         <?php foreach ($data_parkir as $row) { ?>
           <tr>
@@ -56,6 +62,10 @@
             <td><?php echo $row->plat_nomer; ?></td>
             <td><?php echo date('d-m-Y H:i', strtotime($row->tanggal_masuk)); ?></td>
             <td><?php echo $row->harga; ?></td>
+            <td>
+              <!-- <a href="<?php echo site_url('parkiran/generate-karcis-pdf/' . $row->id_masuk); ?>" target="_blank">Cetak Karcis</a> -->
+              <a href="<?php echo site_url('parkiran/generate-karcis-pdf/' . $row->id_masuk); ?>" target="_blank">Cetak Karcis</a>
+            </td>
           </tr>
         <?php } ?>
       </table>

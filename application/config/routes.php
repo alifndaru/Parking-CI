@@ -52,5 +52,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['default_controller'] = 'home';
 
 $route['dashboard'] = 'home';
+// $route['parkiran/generate-karcis-pdf/(:num)'] = 'ParkiranController/generateKarcisPDF/$1';
+$route['parkiran/generate-karcis-pdf/(:num)'] = 'Parkiran/generateKarcisPDF/$1';
+
+
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

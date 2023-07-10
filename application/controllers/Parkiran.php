@@ -32,19 +32,77 @@ class Parkiran extends CI_Controller
 		if ($this->form_validation->run() == FALSE) {
 			// Jika validasi gagal, kembali ke halaman form input
 			$data['kategori'] = $this->KategoriKendaraan_model->getAll();
+			$data['data_parkir'] = $this->Parkiran_model->getAllData();
 			$this->load->view('parkiran/parkiranMasuk', $data);
 		} else {
-			// Jika validasi sukses, simpan data ke database
-			$data = array(
-				'kode_kendaraan' => $this->input->post('kategori'),
-				'plat_nomer' => $this->input->post('plat_nomer'),
-				'tanggal_masuk' => date('Y-m-d H:i:s')
-			);
+			// Jika validasi sukses, cek duplikasi plat nomor
+			$platNomer = $this->input->post('plat_nomer');
+			$isDuplicate = $this->Parkiran_model->checkDuplicatePlatNomor($platNomer);
 
-			$this->Parkiran_model->insert($data);
-			redirect('parkiran/parkiranMasuk');
+			if ($isDuplicate) {
+				$data['kategori'] = $this->KategoriKendaraan_model->getAll();
+				$data['data_parkir'] = $this->Parkiran_model->getAllData();
+				$data['error_message'] = 'Plat nomor sudah terdaftar pada hari ini.';
+				// $this->load->view('parkiran/parkiranMasuk', $data);
+				$this->template->load('layouts/template', 'parkiran/parkiranMasuk', $data);
+			} else {
+				// Jika tidak ada duplikasi, simpan data ke database
+				$data = array(
+					'kode_kendaraan' => $this->input->post('kategori'),
+					'plat_nomer' => $platNomer,
+					'tanggal_masuk' => date('Y-m-d H:i:s')
+				);
+
+				$this->Parkiran_model->insert($data);
+				redirect('parkiran/parkiranMasuk');
+			}
 		}
 	}
+
+	public function generateKarcisPDF($id_masuk)
+	{
+		// Load model dan dapatkan data parkiran berdasarkan id_masuk
+		$this->load->model('Parkiran_model');
+		$parkiran = $this->Parkiran_model->getDataById($id_masuk);
+
+		// Jika data parkiran tidak ditemukan, tampilkan pesan kesalahan atau redirect ke halaman lain
+		if (!$parkiran) {
+			// Tampilkan pesan kesalahan
+			echo "Data parkiran tidak ditemukan.";
+			return;
+		}
+
+		// Load library TCPDF
+		$this->load->library('Tcpdf');
+
+		// Membuat halaman baru
+		$pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+
+		// Set margin halaman
+		$pdf->SetMargins(10, 10, 10);
+
+		// Menambahkan halaman baru
+		$pdf->AddPage();
+
+		// Konten karcis
+		// $content = '<h1>Karcis Parkir</h1>';
+		// $content .= '<p>Plat Nomor: ' . $parkiran->plat_nomer . '</p>';
+		// $content .= '<p>Tanggal Masuk: ' . $parkiran->tanggal_masuk . '</p>';
+		// $content .= '<p>Kategori: ' . $parkiran->nama_kategori . '</p>';
+		// $content .= '<p>Harga: ' . $parkiran->harga . '</p>';
+
+		// // Menambahkan konten ke halaman PDF
+		// $pdf->writeHTML($content, true, false, true, false, '');
+		// Konten karcis
+		$content = $this->load->view('parkiran/karcis_pdf', ['parkiran' => $parkiran], true);
+
+		// Menambahkan konten ke halaman PDF
+		$pdf->writeHTML($content, true, false, true, false, '');
+
+		// Menyimpan dan menampilkan PDF
+		$pdf->Output('karcis_parkir.pdf', 'I');
+	}
+
 
 
 
