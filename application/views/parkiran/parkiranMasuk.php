@@ -26,6 +26,8 @@
           <div style="color: red;"><?php echo $error_message; ?></div>
         <?php } ?>
 
+        <input type="hidden" name="status" value="1"> <!-- Set nilai status sebagai 1 (Masuk) secara default -->  
+
         <div class="form-group">
           <label for="plat_nomer">Nomor Plat:</label>
           <input class="form-control" type="text" name="plat_nomer" value="<?php echo set_value('plat_nomer'); ?>" required>

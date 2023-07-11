@@ -67,24 +67,67 @@ class Parkiran_model extends CI_Model
     }
 
 
-    // public function getAllData()
-    // {
-    //     // Query untuk mendapatkan semua data parkir masuk beserta kategori kendaraan
-    //     $this->db->select('parkir_masuk.kode_kendaraan, parkir_masuk.plat_nomer, parkir_masuk.tanggal_masuk, kategori.harga');
-    //     $this->db->from('parkir_masuk');
-    //     $this->db->join('kategori', 'parkir_masuk.kode_kendaraan = kategori.kode_kategori');
-    //     $query = $this->db->get();
-    //     return $query->result();
-    // }
+    // PARKIR KELUAR
+    public function getParkirMasukByPlatNomer($platNomer)
+    {
+        $this->db->select('*');
+        $this->db->from('parkir_masuk');
+        $this->db->where('plat_nomer', $platNomer);
+        $query = $this->db->get();
+        return $query->row();
+    }
 
+    public function getParkirKeluarByPlatNomer($platNomer)
+    {
+        $this->db->select('*');
+        $this->db->from('parkir_keluar');
+        $this->db->join('parkir_masuk', 'parkir_masuk.id_masuk = parkir_keluar.id_masuk');
+        $this->db->where('parkir_masuk.plat_nomer', $platNomer);
+        $this->db->limit(1);
+        $query = $this->db->get();
+        return $query->row();
+    }
 
-    // public function getAllData()
-    // {
-    //     // Query untuk mendapatkan semua data parkir masuk beserta kategori kendaraan
-    //     $this->db->select('parkir_masuk.kode_kendaraan, parkir_masuk.plat_nomor, parkir_masuk.tanggal_masuk, kategori.harga');
-    //     $this->db->from('parkir_masuk');
-    //     $this->db->join('kategori', 'parkiran.id_kategori = kategori.id_kategori');
-    //     $query = $this->db->get();
-    //     return $query->result();
-    // }
+    public function insertParkirKeluar($data)
+    {
+        $this->db->insert('parkir_keluar', $data);
+    }
+
+    public function updateStatusParkirMasuk($idMasuk, $status)
+    {
+        $this->db->set('status', $status);
+        $this->db->where('id_masuk', $idMasuk);
+        $this->db->update('parkir_masuk');
+    }
+
+    public function getKendaraanTerparkir()
+    {
+        $this->db->select('parkir_masuk.id_masuk, kategori.nama_kategori, parkir_masuk.plat_nomer, parkir_masuk.tanggal_masuk');
+        $this->db->from('parkir_masuk');
+        $this->db->join('kategori', 'parkir_masuk.kode_kendaraan = kategori.kode_kategori');
+        $this->db->where('parkir_masuk.status', 1);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function getKendaraanKeluar()
+    {
+        $this->db->select('parkir_masuk.id_masuk, kategori.nama_kategori, parkir_masuk.plat_nomer, parkir_masuk.tanggal_masuk, parkir_keluar.waktu_keluar, parkir_keluar.harga, parkir_keluar.durasi_parkir ');
+        $this->db->from('parkir_masuk');
+        $this->db->join('kategori', 'parkir_masuk.kode_kendaraan = kategori.kode_kategori');
+        $this->db->join('parkir_keluar', 'parkir_masuk.id_masuk = parkir_keluar.id_masuk');
+        $this->db->where('parkir_masuk.status', 2);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function getKendaraanMasuk()
+    {
+        $this->db->select('parkir_masuk.id_masuk, kategori.nama_kategori, parkir_masuk.plat_nomer, parkir_masuk.tanggal_masuk, kategori.harga');
+        $this->db->from('parkir_masuk');
+        $this->db->join('kategori', 'parkir_masuk.kode_kendaraan = kategori.kode_kategori');
+        $this->db->where('parkir_masuk.status', 1);
+        $query = $this->db->get();
+        return $query->result();
+    }
 }
