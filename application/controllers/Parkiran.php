@@ -122,25 +122,21 @@ class Parkiran extends CI_Controller
 			return;
 		}
 
-		// Load library TCPDF
-		$this->load->library('Tcpdf');
+		$this->load->library('pdf');
 
-		// Membuat halaman baru
-		$pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+		// Load view dengan data yang diperlukan
+		$data['parkiran'] = $parkiran;
+		$html = $this->load->view('parkiran/karcis_pdf', $data, true);
 
-		// Set margin halaman
-		$pdf->SetMargins(10, 10, 10);
-
-		// Menambahkan halaman baru
-		$pdf->AddPage();
-		$content = $this->load->view('parkiran/karcis_pdf', ['parkiran' => $parkiran], true);
-
-		// Menambahkan konten ke halaman PDF
-		$pdf->writeHTML($content, true, false, true, false, '');
+		// Render HTML menjadi PDF
+		$this->pdf->loadHtml($html);
+		$this->pdf->render();
 
 		// Menyimpan dan menampilkan PDF
-		$pdf->Output('karcis_parkir.pdf', 'I');
+		$this->pdf->stream('karcis_parkir.pdf', array('Attachment' => false));
 	}
+
+	
 
 	// end of prosess parkir masuk
 
