@@ -7,14 +7,16 @@
       <table class="table table-hover">
         <tr>
           <th>Jenis Kendaraan</th>
+          <th>Kode Karcis</th>
           <th>Plat Nomer</th>
-          <th>Tanggal Masuk</th>
+          <th>Waktu</th>
         </tr>
         <?php foreach ($data_parkir_masuk as $row) { ?>
           <tr>
             <td><?php echo $row->nama_kategori; ?></td>
+            <td><?php echo $row->kode_karcis; ?></td>
             <td><?php echo $row->plat_nomer; ?></td>
-            <td><?php echo date('d-m-Y H:i', strtotime($row->tanggal_masuk)); ?></td>
+            <td><?php echo date('H:i', strtotime($row->tanggal_masuk)); ?> WIB</td>
           </tr>
         <?php } ?>
       </table>

@@ -26,6 +26,7 @@ class Parkiran extends CI_Controller
 	}
 
 
+
 	public function simpan()
 	{
 		// Validasi input
@@ -34,79 +35,51 @@ class Parkiran extends CI_Controller
 		$this->form_validation->set_rules('status', 'Status', 'required');
 
 		if ($this->form_validation->run() == FALSE) {
-			// Jika validasi gagal, kembali ke halaman form input
+			// Jika validasi pertama gagal, kembali ke halaman form input
 			$data['kategori'] = $this->KategoriKendaraan_model->getAll();
+			$data['data_parkir'] = $this->Parkiran_model->getKendaraanMasuk();
 			$data['data_parkir_masuk'] = $this->Parkiran_model->getKendaraanMasuk();
 			$data['data_parkir_keluar'] = $this->Parkiran_model->getKendaraanKeluar();
 			$this->template->load('layouts/template', 'parkiran/parkiranMasuk', $data);
 		} else {
 			// Jika validasi sukses, cek status parkir terakhir kendaraan
 			$platNomer = $this->input->post('plat_nomer');
-			$parkirKeluar = $this->Parkiran_model->getParkirKeluarByPlatNomer($platNomer);
+			$parkirMasuk = $this->Parkiran_model->getParkirMasukByPlatNomer($platNomer);
 
-			if ($parkirKeluar && $parkirKeluar->status == 2) {
-				// Jika kendaraan sudah keluar dan status = 2, izinkan parkir kembali
-				$data = array(
-					'kode_kendaraan' => $this->input->post('kategori'),
-					'plat_nomer' => $platNomer,
-					'tanggal_masuk' => date('Y-m-d H:i:s'),
-					'status' => $this->input->post('status')
-				);
-
-				$this->Parkiran_model->insert($data);
-				redirect('parkiran/parkiranMasuk');
-			} else {
-				// Jika kendaraan masih dalam status parkir atau status lainnya, tampilkan pesan kesalahan
-				$data['kategori'] = $this->KategoriKendaraan_model->getAll();
-				$data['data_parkir_masuk'] = $this->Parkiran_model->getKendaraanMasuk();
-				$data['data_parkir_keluar'] = $this->Parkiran_model->getKendaraanKeluar();
-				$data['error_message'] = 'Kendaraan tidak dapat melakukan parkir kembali.';
-				$this->template->load('layouts/template', 'parkiran/parkiranMasuk', $data);
+			if ($parkirMasuk) {
+				if ($parkirMasuk->status == 1) {
+					// Jika kendaraan masih dalam status parkir, tampilkan pesan kesalahan
+					$data['kategori'] = $this->KategoriKendaraan_model->getAll();
+					$data['data_parkir'] = $this->Parkiran_model->getKendaraanMasuk();
+					$data['data_parkir_masuk'] = $this->Parkiran_model->getKendaraanMasuk();
+					$data['data_parkir_keluar'] = $this->Parkiran_model->getKendaraanKeluar();
+					$data['error_message'] = 'Kendaraan sedang dalam status parkir.';
+					$this->template->load('layouts/template', 'parkiran/parkiranMasuk', $data);
+					return;
+				}
 			}
+
+			// Generate kode_karcis
+			$lastKarcis = $this->Parkiran_model->getLastKarcis();
+			$lastNumber = substr($lastKarcis, -4); // Ambil 4 digit terakhir dari kode_karcis terakhir
+			$nextNumber = intval($lastNumber) + 1;
+			$nextKarcis = 'KC' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+			// Jika kendaraan sudah keluar atau status parkir lainnya, izinkan parkir kembali
+			$data = array(
+				'kode_karcis' => $nextKarcis,
+				'kode_kendaraan' => $this->input->post('kategori'),
+				'plat_nomer' => $platNomer,
+				'tanggal_masuk' => date('Y-m-d H:i:s'),
+				'status' => $this->input->post('status')
+			);
+
+			$this->Parkiran_model->insert($data);
+			redirect('parkiran/parkiranMasuk');
 		}
 	}
 
 
-	// public function simpan()
-	// {
-	// 	// Validasi input
-	// 	$this->form_validation->set_rules('plat_nomer', 'Plat Nomer', 'required');
-	// 	$this->form_validation->set_rules('kategori', 'Kategori Kendaraan', 'required');
-	// 	$this->form_validation->set_rules('status', 'Status', 'required');
-
-	// 	if ($this->form_validation->run() == FALSE) {
-	// 		// Jika validasi gagal, kembali ke halaman form input
-	// 		$data['kategori'] = $this->KategoriKendaraan_model->getAll();
-	// 		$data['data_parkir'] = $this->Parkiran_model->getKendaraanMasuk();
-	// 		$data['data_parkir_masuk'] = $this->Parkiran_model->getKendaraanMasuk();
-	// 		$data['data_parkir_keluar'] = $this->Parkiran_model->getKendaraanKeluar();
-	// 		$this->template->load('layouts/template', 'parkiran/parkiranMasuk', $data);
-	// 	} else {
-	// 		// Jika validasi sukses, cek duplikasi plat nomor
-	// 		$platNomer = $this->input->post('plat_nomer');
-	// 		$isDuplicate = $this->Parkiran_model->checkDuplicatePlatNomor($platNomer);
-
-	// 		if ($isDuplicate) {
-	// 			$data['kategori'] = $this->KategoriKendaraan_model->getAll();
-	// 			$data['data_parkir'] = $this->Parkiran_model->getKendaraanMasuk();
-	// 			$data['data_parkir_masuk'] = $this->Parkiran_model->getKendaraanMasuk();
-	// 			$data['data_parkir_keluar'] = $this->Parkiran_model->getKendaraanKeluar();
-	// 			$data['error_message'] = 'Plat nomor sudah terdaftar pada hari ini.';
-	// 			$this->template->load('layouts/template', 'parkiran/parkiranMasuk', $data);
-	// 		} else {
-	// 			// Jika tidak ada duplikasi, simpan data ke database
-	// 			$data = array(
-	// 				'kode_kendaraan' => $this->input->post('kategori'),
-	// 				'plat_nomer' => $platNomer,
-	// 				'tanggal_masuk' => date('Y-m-d H:i:s'),
-	// 				'status' => $this->input->post('status')
-	// 			);
-
-	// 			$this->Parkiran_model->insert($data);
-	// 			redirect('parkiran/parkiranMasuk');
-	// 		}
-	// 	}
-	// }
 
 
 	public function generateKarcisPDF($id_masuk)
@@ -136,7 +109,7 @@ class Parkiran extends CI_Controller
 		$this->pdf->stream('karcis_parkir.pdf', array('Attachment' => false));
 	}
 
-	
+
 
 	// end of prosess parkir masuk
 
@@ -146,55 +119,104 @@ class Parkiran extends CI_Controller
 	public function parkiranKeluar()
 	{
 		$data['data_parkir_masuk'] = $this->Parkiran_model->getKendaraanTerparkir();
+		$data['data_parkir_keluar'] = $this->Parkiran_model->getKendaraanKeluar();
 		$data['data_kendaraan_keluar'] = $this->Parkiran_model->getKendaraanKeluar();
+
+
 		$this->template->load('layouts/template', 'parkiran/parkiranKeluar', $data);
 	}
 
-	public function keluar()
+	public function keluarBener()
 	{
-		$platNomer = $this->input->post('plat_nomer');
+		$kodeKarcis = $this->input->post('kode_karcis');
+
+		// Cek apakah kode karcis valid
+		$parkirMasuk = $this->Parkiran_model->getParkirMasukByKodeKarcis($kodeKarcis);
+		if (!$parkirMasuk) {
+			echo "Kode karcis tidak valid.";
+			return;
+		}
 
 		// Cek apakah kendaraan sudah keluar sebelumnya
-		$parkirKeluar = $this->Parkiran_model->getParkirKeluarByPlatNomer($platNomer);
-
-
+		$parkirKeluar = $this->Parkiran_model->getParkirKeluarByKodeKarcis($kodeKarcis);
 		if ($parkirKeluar) {
-			// Jika kendaraan sudah keluar, tampilkan pesan kesalahan
 			echo "Kendaraan sudah keluar.";
 			return;
 		}
-
-		// Dapatkan data parkir masuk berdasarkan plat nomor
-		$parkirMasuk = $this->Parkiran_model->getParkirMasukByPlatNomer($platNomer);
-		if (!$parkirMasuk) {
-			// Jika data parkir masuk tidak ditemukan, tampilkan pesan kesalahan
-			echo "Data parkir masuk tidak ditemukan.";
-			return;
-		}
-
 
 		// Hitung durasi parkir
 		$tanggalMasuk = strtotime($parkirMasuk->tanggal_masuk);
 		$tanggalKeluar = time();
 		$durasiParkir = ($tanggalKeluar - $tanggalMasuk) / 3600; // Durasi dalam jam
 
-
-		// Ambil data kategori kendaraan berdasarkan kode kendaraan
+		// Ambil data kategori kendaraan
 		$kategori = $this->KategoriKendaraan_model->getByKode($parkirMasuk->kode_kendaraan);
 
-		// Hitung total harga
+		// Tentukan harga parkir berdasarkan kategori kendaraan dan durasi parkir
+		$hargaPerJam = ($kategori->nama_kategori == 'Motor') ? 500 : 1000; // Harga per jam
+		$harga2JamPertama = ($kategori->nama_kategori == 'Motor') ? 1500 : 3000; // Harga 2 jam pertama
+		$maksimalPembayaran = ($kategori->nama_kategori == 'Motor') ? 5000 : 10000; // Maksimal pembayaran
 
+		$totalHarga = 0;
+
+		if ($durasiParkir <= 2) {
+			$totalHarga = $harga2JamPertama;
+		} else {
+			$totalHarga = $harga2JamPertama + ($hargaPerJam * ($durasiParkir - 2));
+			$totalHarga = min($totalHarga, $maksimalPembayaran); // Batasi total harga dengan maksimal pembayaran
+		}
+
+		// Insert data parkir keluar ke database
+		$dataParkirKeluar = array(
+			'kode_karcis' => $kodeKarcis,
+			'waktu_keluar' => date('Y-m-d H:i:s'),
+			'durasi_parkir' => $durasiParkir,
+			'harga' => $totalHarga,
+			'status_keluar' => 2 // Set nilai 'status_keluar' = 2
+		);
+		$this->Parkiran_model->insertParkirKeluar($dataParkirKeluar);
+
+		// Ubah status parkir masuk menjadi keluar (status = 2)
+		$this->Parkiran_model->updateStatusParkirMasuk($parkirMasuk->id_masuk, 2);
+
+		redirect('parkiran/parkiranKeluar');
+	}
+
+
+
+	public function keluar()
+	{
+		$kodeKarcis = $this->input->post('kode_karcis');
+
+		// Cek apakah kode karcis valid
+		$parkirMasuk = $this->Parkiran_model->getParkirMasukByKodeKarcis($kodeKarcis);
+		if (!$parkirMasuk) {
+			echo "Kode karcis tidak valid.";
+			return;
+		}
+
+		// Cek apakah kendaraan sudah keluar sebelumnya
+		$parkirKeluar = $this->Parkiran_model->getParkirKeluarByKodeKarcis($kodeKarcis);
+		if ($parkirKeluar) {
+			echo "Kendaraan sudah keluar.";
+			return;
+		}
+
+		// Hitung durasi parkir dan harga
+		$tanggalMasuk = strtotime($parkirMasuk->tanggal_masuk);
+		$tanggalKeluar = time();
+		$durasiParkir = ($tanggalKeluar - $tanggalMasuk) / 3600; // Durasi dalam jam
+
+		$kategori = $this->KategoriKendaraan_model->getByKode($parkirMasuk->kode_kendaraan);
 		$totalHarga = $kategori->harga * $durasiParkir;
-
-
-
 
 		// Insert data parkir keluar ke database
 		$dataParkirKeluar = array(
 			'id_masuk' => $parkirMasuk->id_masuk,
 			'waktu_keluar' => date('Y-m-d H:i:s'),
 			'durasi_parkir' => $durasiParkir,
-			'harga' => $totalHarga
+			'harga' => $totalHarga,
+			'status_keluar' => 2
 		);
 		$this->Parkiran_model->insertParkirKeluar($dataParkirKeluar);
 

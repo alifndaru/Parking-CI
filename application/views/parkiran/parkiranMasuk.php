@@ -52,17 +52,21 @@
     <div class="box-body table-responsive no-padding">
       <table class="table table-hover">
         <tr>
-          <th>Kode Kendaraan</th>
+          <th>Jenis Kendaraan</th>
+          <th>Kode Karcis</th>
           <th>Plat Nomer</th>
-          <th>tanggal masuk</th>
+          <th>Waktu</th>
           <th>harga</th>
           <th>Cetak</th>
         </tr>
         <?php foreach ($data_parkir as $row) { ?>
           <tr>
             <td><?php echo $row->nama_kategori; ?></td>
+            <td><?php echo $row->kode_karcis; ?></td>
             <td><?php echo $row->plat_nomer; ?></td>
-            <td><?php echo date('d-m-Y H:i', strtotime($row->tanggal_masuk)); ?></td>
+            <td><?php echo date('H:i', strtotime($row->tanggal_masuk)); ?> WIB</td>
+
+            <!-- <td><?php echo date('d-m-Y H:i', strtotime($row->tanggal_masuk)); ?></td> -->
             <td><?php echo $row->harga; ?></td>
             <td>
               <!-- <a href="<?php echo site_url('parkiran/generate-karcis-pdf/' . $row->id_masuk); ?>" target="_blank">Cetak Karcis</a> -->
