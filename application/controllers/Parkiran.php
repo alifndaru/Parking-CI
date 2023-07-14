@@ -168,6 +168,7 @@ class Parkiran extends CI_Controller
 
 		// Insert data parkir keluar ke database
 		$dataParkirKeluar = array(
+			'id_masuk' => $parkirMasuk->id_masuk,
 			'kode_karcis' => $kodeKarcis,
 			'waktu_keluar' => date('Y-m-d H:i:s'),
 			'durasi_parkir' => $durasiParkir,
