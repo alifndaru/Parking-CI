@@ -12,65 +12,58 @@
 <!-- Main content -->
 <section class="content">
   <!-- Info boxes -->
-  <div class="row">
-    <div class="col-md-3 col-sm-6 col-xs-12">
-      <div class="info-box">
-        <span class="info-box-icon bg-aqua"><i class="ion ion-ios-gear-outline"></i></span>
 
-        <div class="info-box-content">
-          <span class="info-box-text">Kendaraan</span>
-          <span class="info-box-number">90<small>%</small></span>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+          <span class="info-box-icon bg-aqua"><i class="ion ion-ios-gear-outline"></i></span>
+  
+          <div class="info-box-content">
+            <span class="info-box-text">Kendaraan</span>
+            <span class="info-box-number">
+              <small><?php echo $jumlahKendaraan; ?></small>
+            </span>
+          </div>
+          <!-- /.info-box-content -->
         </div>
-        <!-- /.info-box-content -->
+        <!-- /.info-box -->
       </div>
-      <!-- /.info-box -->
-    </div>
-    <!-- /.col -->
-    <div class="col-md-3 col-sm-6 col-xs-12">
-      <div class="info-box">
-        <span class="info-box-icon bg-red"><i class="fa fa-google-plus"></i></span>
-
-        <div class="info-box-content">
-          <span class="info-box-text">Kategori</span>
-          <span class="info-box-number">41,410</span>
+      <!-- /.col -->
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+          <span class="info-box-icon bg-red"><i class="fa fa-google-plus"></i></span>
+  
+          <div class="info-box-content">
+            <span class="info-box-text">Kategori</span>
+            <span class="info-box-number"><?php echo $jumlahKategori; ?></span>
+          </div>
+          <!-- /.info-box-content -->
         </div>
-        <!-- /.info-box-content -->
+        <!-- /.info-box -->
       </div>
-      <!-- /.info-box -->
-    </div>
-    <!-- /.col -->
-
-    <!-- fix for small devices only -->
-    <div class="clearfix visible-sm-block"></div>
-
-    <div class="col-md-3 col-sm-6 col-xs-12">
-      <div class="info-box">
-        <span class="info-box-icon bg-green"><i class="ion ion-ios-cart-outline"></i></span>
-
-        <div class="info-box-content">
-          <span class="info-box-text">Laporan Keuangan</span>
-          <span class="info-box-number">760</span>
+      <!-- /.col -->
+  
+      <!-- fix for small devices only -->
+      <div class="clearfix visible-sm-block"></div>
+  
+         <!-- /.col -->
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+          <span class="info-box-icon bg-yellow"><i class="ion ion-ios-people-outline"></i></span>
+  
+          <div class="info-box-content">
+            <span class="info-box-text">Pegawai</span>
+            <span class="info-box-number"><?php echo $jumlahPegawai; ?></span>
+          </div>
+          <!-- /.info-box-content -->
         </div>
-        <!-- /.info-box-content -->
+        <!-- /.info-box -->
       </div>
-      <!-- /.info-box -->
+      <!-- /.col -->
+      <!-- <?php echo print_r($this->session->all_userdata()); ?> -->
+  
     </div>
-    <!-- /.col -->
-    <div class="col-md-3 col-sm-6 col-xs-12">
-      <div class="info-box">
-        <span class="info-box-icon bg-yellow"><i class="ion ion-ios-people-outline"></i></span>
-
-        <div class="info-box-content">
-          <span class="info-box-text">Pegawai</span>
-          <span class="info-box-number">2,000</span>
-        </div>
-        <!-- /.info-box-content -->
-      </div>
-      <!-- /.info-box -->
-    </div>
-    <!-- /.col -->
-    <?php echo print_r($this->session->all_userdata()); ?>
-
   </div>
   <!-- /.row -->
 </section>
