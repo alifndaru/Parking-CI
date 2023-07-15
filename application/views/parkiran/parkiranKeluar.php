@@ -39,6 +39,7 @@
         <thead>
           <tr>
             <th>kode_karcis</th>
+            <th>Jenis Kendaraan</th>
             <th>Waktu Masuk</th>
             <th>Waktu Keluar</th>
             <th>Durasi Parkir</th>
@@ -49,6 +50,7 @@
           <?php foreach ($data_parkir_keluar as $row) : ?>
             <tr>
               <td><?php echo $row->kode_karcis; ?></td>
+              <td><?php echo $row->nama_kategori; ?></td>
               <td><?php echo date('H:i', strtotime($row->tanggal_masuk)); ?> WIB</td>
               <td><?php echo date('H:i', strtotime($row->waktu_keluar)); ?> WIB</td>
               <td><?php echo $row->durasi_parkir; ?></td>

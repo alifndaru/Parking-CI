@@ -1,4 +1,7 @@
 <?php
+
+use PHPUnit\Framework\Test;
+
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Parkiran extends CI_Controller
@@ -75,6 +78,7 @@ class Parkiran extends CI_Controller
 			);
 
 			$this->Parkiran_model->insert($data);
+
 			redirect('parkiran/parkiranMasuk');
 		}
 	}
@@ -126,6 +130,62 @@ class Parkiran extends CI_Controller
 		$this->template->load('layouts/template', 'parkiran/parkiranKeluar', $data);
 	}
 
+	// public function keluarBener()
+	// {
+	// 	$kodeKarcis = $this->input->post('kode_karcis');
+
+	// 	// Cek apakah kode karcis valid
+	// 	$parkirMasuk = $this->Parkiran_model->getParkirMasukByKodeKarcis($kodeKarcis);
+	// 	if (!$parkirMasuk) {
+	// 		echo "Kode karcis tidak valid.";
+	// 		return;
+	// 	}
+
+	// 	// Cek apakah kendaraan sudah keluar sebelumnya
+	// 	$parkirKeluar = $this->Parkiran_model->getParkirKeluarByKodeKarcis($kodeKarcis);
+	// 	if ($parkirKeluar) {
+	// 		echo "Kendaraan sudah keluar.";
+	// 		return;
+	// 	}
+
+	// 	// Hitung durasi parkir
+	// 	$tanggalMasuk = strtotime($parkirMasuk->tanggal_masuk);
+	// 	$tanggalKeluar = time();
+	// 	$durasiParkir = ($tanggalKeluar - $tanggalMasuk) / 3600; // Durasi dalam jam
+
+	// 	// Ambil data kategori kendaraan
+	// 	$kategori = $this->KategoriKendaraan_model->getByKode($parkirMasuk->kode_kendaraan);
+
+	// 	// Tentukan harga parkir berdasarkan kategori kendaraan dan durasi parkir
+	// 	$hargaPerJam = ($kategori->nama_kategori == 'Motor') ? 500 : 1000; // Harga per jam
+	// 	$harga2JamPertama = ($kategori->nama_kategori == 'Motor') ? 1500 : 3000; // Harga 2 jam pertama
+	// 	$maksimalPembayaran = ($kategori->nama_kategori == 'Motor') ? 5000 : 10000; // Maksimal pembayaran
+
+	// 	$totalHarga = 0;
+
+	// 	if ($durasiParkir <= 2) {
+	// 		$totalHarga = $harga2JamPertama;
+	// 	} else {
+	// 		$totalHarga = $harga2JamPertama + ($hargaPerJam * ($durasiParkir - 2));
+	// 		$totalHarga = min($totalHarga, $maksimalPembayaran); // Batasi total harga dengan maksimal pembayaran
+	// 	}
+
+	// 	// Insert data parkir keluar ke database
+	// 	$dataParkirKeluar = array(
+	// 		'id_masuk' => $parkirMasuk->id_masuk,
+	// 		'kode_karcis' => $kodeKarcis,
+	// 		'waktu_keluar' => date('Y-m-d H:i:s'),
+	// 		'durasi_parkir' => $durasiParkir,
+	// 		'harga' => $totalHarga,
+	// 		'status_keluar' => 2 // Set nilai 'status_keluar' = 2
+	// 	);
+	// 	$this->Parkiran_model->insertParkirKeluar($dataParkirKeluar);
+
+	// 	// Ubah status parkir masuk menjadi keluar (status = 2)
+	// 	$this->Parkiran_model->updateStatusParkirMasuk($parkirMasuk->id_masuk, 2);
+	// 	redirect('parkiran/parkiranKeluar');
+	// }
+
 	public function keluarBener()
 	{
 		$kodeKarcis = $this->input->post('kode_karcis');
@@ -144,26 +204,37 @@ class Parkiran extends CI_Controller
 			return;
 		}
 
-		// Hitung durasi parkir
+
 		$tanggalMasuk = strtotime($parkirMasuk->tanggal_masuk);
 		$tanggalKeluar = time();
-		$durasiParkir = ($tanggalKeluar - $tanggalMasuk) / 3600; // Durasi dalam jam
+		$diff = $tanggalKeluar - $tanggalMasuk;
+
+		$durasiParkir = floor($diff / (60 * 60));
 
 		// Ambil data kategori kendaraan
 		$kategori = $this->KategoriKendaraan_model->getByKode($parkirMasuk->kode_kendaraan);
 
-		// Tentukan harga parkir berdasarkan kategori kendaraan dan durasi parkir
-		$hargaPerJam = ($kategori->nama_kategori == 'Motor') ? 500 : 1000; // Harga per jam
-		$harga2JamPertama = ($kategori->nama_kategori == 'Motor') ? 1500 : 3000; // Harga 2 jam pertama
-		$maksimalPembayaran = ($kategori->nama_kategori == 'Motor') ? 5000 : 10000; // Maksimal pembayaran
+
+		if ($kategori->nama_kategori == 'motor') {
+			$harga2JamPertama = 1500;
+			$hargaPerJam = 500;
+			$maksimalPembayaran = 5000;
+		} else {
+			$harga2JamPertama = 3000;
+			$hargaPerJam = 1000;
+			$maksimalPembayaran = 10000;
+		}
 
 		$totalHarga = 0;
 
-		if ($durasiParkir <= 2) {
+		$totalHarga = 0;
+
+		if ($durasiParkir < 2) {
 			$totalHarga = $harga2JamPertama;
-		} else {
+		} elseif ($durasiParkir >= 2 && $durasiParkir <= 5) {
 			$totalHarga = $harga2JamPertama + ($hargaPerJam * ($durasiParkir - 2));
-			$totalHarga = min($totalHarga, $maksimalPembayaran); // Batasi total harga dengan maksimal pembayaran
+		} else {
+			$totalHarga = $maksimalPembayaran;
 		}
 
 		// Insert data parkir keluar ke database
@@ -179,9 +250,10 @@ class Parkiran extends CI_Controller
 
 		// Ubah status parkir masuk menjadi keluar (status = 2)
 		$this->Parkiran_model->updateStatusParkirMasuk($parkirMasuk->id_masuk, 2);
-
 		redirect('parkiran/parkiranKeluar');
 	}
+
+
 
 
 

@@ -154,6 +154,7 @@ class Parkiran_model extends CI_Model
         $this->db->join('kategori', 'parkir_masuk.kode_kendaraan = kategori.kode_kategori');
         $this->db->join('parkir_keluar', 'parkir_masuk.id_masuk = parkir_keluar.id_masuk');
         $this->db->where('parkir_masuk.status', 2);
+        $this->db->order_by('parkir_masuk.kode_karcis', 'DESC');
         $query = $this->db->get();
         return $query->result();
     }
